@@ -1,0 +1,95 @@
+/* General Styling */
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #f4f7f9;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Styling */
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* Status Section */
+.status-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.status-container label {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+#status {
+    padding: 5px;
+    font-size: 16px;
+}
+
+/* Status Box */
+.status-box {
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.green-status { background-color: #28a745; color: white; }
+.amber-status { background-color: #ffc107; color: black; }
+.red-status { background-color: #dc3545; color: white; }
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 12px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Button Styling */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Icons & Adjustments */
+.icon {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
