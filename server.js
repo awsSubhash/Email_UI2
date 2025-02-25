@@ -14,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Nodemailer Configuration
 const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -27,68 +28,96 @@ app.post("/send-email", async (req, res) => {
     try {
         const {
             recipient,
-            subject,  // ✅ Email subject from user input
+            subject,
             status,
             incidentTitle,
             description,
             impact,
             outageStart,
-            outageEnd, // ✅ Now optional
+            outageEnd,
             majorIncidentManagers,
             teamsEngaged,
             chainOfEvents
         } = req.body;
 
-        // ✅ Default Fields
-        const region = "India";
-        const reporter = "OCC Team";
-        const zoomLink = "https://meet.google.com/landing?hs=197&authuser=0";
+        // ✅ Required Fields Validation
+        let missingFields = [];
 
-        // ✅ Validate Required Fields (Removed `outageEnd`)
-        if (!recipient || !subject || !incidentTitle || !description || !impact || !outageStart) {
-            return res.status(400).json({ success: false, message: "⚠️ Please fill all required fields." });
+        if (!recipient) missingFields.push("Recipient Email");
+        if (!subject) missingFields.push("Subject");
+        if (!status) missingFields.push("Status");
+        if (!incidentTitle) missingFields.push("Incident Title");
+        if (!description) missingFields.push("Description");
+        if (!impact) missingFields.push("Impact");
+        if (!outageStart) missingFields.push("Outage Start");
+        if (!majorIncidentManagers) missingFields.push("Major Incident Managers");
+
+        // ✅ Outage End Validation:
+        // - Required when Status is GREEN
+        // - Optional when Status is RED or AMBER
+        const normalizedStatus = status.trim().toLowerCase();
+        if (normalizedStatus === "green" && (!outageEnd || outageEnd.trim() === "")) {
+            missingFields.push("Outage End (Required for Green)");
         }
 
-        // ✅ Ensure `teamsEngaged` is an array
-        const formattedTeams = Array.isArray(teamsEngaged) ? teamsEngaged.join(", ") : "N/A";
+        if (missingFields.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `⚠️ Missing Fields: ${missingFields.join(", ")}` 
+            });
+        }
 
-        // ✅ Fix Line Break Issue in "Chain of Events"
+        // ✅ Normalize Status Input
+        const statusMapping = {
+            red: "RED",
+            amber: "AMBER",
+            green: "GREEN"
+        };
+        const subjectStatus = statusMapping[normalizedStatus] || "UNKNOWN"; 
+
+        // ✅ Set Default Value for Outage End (Only for Red & Amber)
+        const formattedOutageEnd = (subjectStatus === "RED" || subjectStatus === "AMBER") ? (outageEnd || "N/A") : outageEnd;
+
+        // ✅ Format Additional Fields
+        const formattedTeams = Array.isArray(teamsEngaged) ? teamsEngaged.join(", ") : teamsEngaged || "N/A";
         const formattedChainOfEvents = chainOfEvents ? chainOfEvents.replace(/\n/g, "<br>") : "N/A";
 
-        // ✅ Handle Optional `outageEnd`
-        const outageEndText = outageEnd && outageEnd.trim() !== "" ? outageEnd : "N/A";
+        // ✅ Set Background Color Based on Status
+        const bgColor = subjectStatus === "RED" ? "#d32f2f" : subjectStatus === "AMBER" ? "#ff9800" : "#388e3c";
 
-        // ✅ Email Template
+        // ✅ Email Subject (No "Status" in Subject Line)
+        const updatedSubject = `${subject}`;
+
+        // ✅ Email Body with Larger Font
         const mailOptions = {
             from: `"Incident Management System" <${process.env.EMAIL_USERNAME}>`,
             to: recipient,
-            subject: subject, // ✅ Email subject is set properly
+            subject: updatedSubject,
+            headers: { "X-Incident-Status": subjectStatus },
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
                     <table style="width: 100%; max-width: 600px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0px 2px 5px #ccc;">
                         <tr>
-                            <td style="background: ${status === 'RED' ? '#d32f2f' : status === 'AMBER' ? '#ff9800' : '#388e3c'}; 
-                                color: white; padding: 15px; font-size: 20px; text-align: center; font-weight: bold; 
-                                border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                                🚨 Incident Notification - ${status}
+                            <td style="background: ${bgColor}; color: white; padding: 20px; font-size: 22px; text-align: center; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                🚨 Current Status - ${subjectStatus}
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 20px; font-size: 14px; line-height: 1.6;">
-                                <p><strong>🔴 Status:</strong> ${status}</p>
+                            <td style="padding: 25px; font-size: 18px; line-height: 1.8; color: #333;">
+                                <p><strong>🔴 Current Status:</strong> ${subjectStatus}</p>
                                 <p><strong>📌 Incident Title:</strong> ${incidentTitle}</p>
                                 <p><strong>📖 Description:</strong> ${description}</p>
                                 <p><strong>⚡ Impact:</strong> ${impact}</p>
                                 <p><strong>⏳ Outage Start:</strong> ${outageStart}</p>
-                                <p><strong>✅ Outage End:</strong> ${outageEndText}</p> <!-- ✅ Shows 'N/A' if empty -->
-                                <p><strong>🌍 Region:</strong> ${region}</p>
-                                <p><strong>👤 Reporter:</strong> ${reporter}</p>
-                                <p><strong>🔗 Zoom Link:</strong> <a href="${zoomLink}" target="_blank">${zoomLink}</a></p>
+                                ${subjectStatus !== "GREEN" || outageEnd ? `<p><strong>✅ Outage End:</strong> ${formattedOutageEnd}</p>` : ""}
+                                <p><strong>🌍 Region:</strong> India</p>
+                                <p><strong>👤 Reporter:</strong> OCC Team</p>
+                                <p><strong>🔗 Zoom Link:</strong> <a href="https://meet.google.com/landing?hs=197&authuser=0" target="_blank" style="color: #007bff;">Google Meet</a></p>
                                 <p><strong>👨‍💼 Major Incident Managers:</strong> ${majorIncidentManagers}</p>
                                 <p><strong>💼 Teams Engaged:</strong> ${formattedTeams}</p>
                                 <p><strong>📜 Chain of Events:</strong> <br>${formattedChainOfEvents}</p>
                                 <hr style="border: 0; border-top: 1px solid #ddd;">
-                                <p style="color: #999; text-align: center;">📧 Sent via Automated Incident Notification System</p>
+                                <p style="color: #999; text-align: center; font-size: 14px;">📧 OLA COMMAND CENTER</p>
                             </td>
                         </tr>
                     </table>
@@ -97,6 +126,8 @@ app.post("/send-email", async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
+        
+        // ✅ Success Response
         res.json({ success: true, message: "✅ Email sent successfully!" });
 
     } catch (error) {
