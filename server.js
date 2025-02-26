@@ -55,9 +55,7 @@ app.post("/send-email", async (req, res) => {
         if (!majorIncidentManagers) missingFields.push("Major Incident Managers");
         if (!chainOfEvents || chainOfEvents.trim() === "") missingFields.push("Chain of Events");
 
-        // ✅ Outage End Validation:
-        // - Required when Status is GREEN
-        // - Optional when Status is RED or AMBER
+        // ✅ Status Validation
         const normalizedStatus = status.trim().toLowerCase();
         if (normalizedStatus === "green" && (!outageEnd || outageEnd.trim() === "")) {
             missingFields.push("Outage End (Required for Green)");
@@ -70,44 +68,46 @@ app.post("/send-email", async (req, res) => {
             });
         }
 
-        // ✅ Normalize Status Input
+        // ✅ Status Configuration
         const statusMapping = {
             red: "RED",
             amber: "AMBER",
             green: "GREEN"
         };
-        const subjectStatus = statusMapping[normalizedStatus] || "UNKNOWN"; 
+        const statusDisplayMap = {
+            red: "Investigating",
+            amber: "Under Observation",
+            green: "Resolved"
+        };
+        
+        const subjectStatus = statusMapping[normalizedStatus] || "UNKNOWN";
+        const displayStatus = statusDisplayMap[normalizedStatus] || "Unknown";
 
-        // ✅ Set Default Value for Outage End (Only for Red & Amber)
+        // ✅ Formatting Values
         const formattedOutageEnd = (subjectStatus === "RED" || subjectStatus === "AMBER") ? (outageEnd || "N/A") : outageEnd;
-
-        // ✅ Format Additional Fields
         const formattedTeams = Array.isArray(teamsEngaged) ? teamsEngaged.join(", ") : teamsEngaged || "N/A";
         const formattedChainOfEvents = chainOfEvents ? chainOfEvents.replace(/\n/g, "<br>") : "N/A";
 
-        // ✅ Set Background Color Based on Status
+        // ✅ Email Styling
         const bgColor = subjectStatus === "RED" ? "#d32f2f" : subjectStatus === "AMBER" ? "#ff9800" : "#388e3c";
 
-        // ✅ Email Subject (No "Status" in Subject Line)
-        const updatedSubject = `${subject}`;
-
-        // ✅ Email Body with Larger Font
+        // ✅ Email Template (Version 1.4 Changes)
         const mailOptions = {
             from: `"Incident Management System" <${process.env.EMAIL_USERNAME}>`,
             to: recipient,
-            subject: updatedSubject,
+            subject: `${subject}`,
             headers: { "X-Incident-Status": subjectStatus },
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
                     <table style="width: 100%; max-width: 600px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0px 2px 5px #ccc;">
                         <tr>
                             <td style="background: ${bgColor}; color: white; padding: 20px; font-size: 22px; text-align: center; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                                🚨 Current Status - ${subjectStatus}
+                                🚨 Status - ${subjectStatus}
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 25px; font-size: 18px; line-height: 1.8; color: #333;">
-                                <p><strong>🔴 Current Status:</strong> ${subjectStatus}</p>
+                                <p><strong>🔴 Current Status:</strong> ${displayStatus}</p>
                                 <p><strong>📌 Incident Title:</strong> ${incidentTitle}</p>
                                 <p><strong>📖 Description:</strong> ${description}</p>
                                 <p><strong>⚡ Impact:</strong> ${impact}</p>
@@ -132,7 +132,6 @@ app.post("/send-email", async (req, res) => {
 
         await transporter.sendMail(mailOptions);
         
-        // ✅ Success Response
         res.json({ success: true, message: "✅ Email sent successfully!" });
 
     } catch (error) {
