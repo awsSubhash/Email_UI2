@@ -35,6 +35,8 @@ app.post("/send-email", async (req, res) => {
             impact,
             outageStart,
             outageEnd,
+            slackChannel,
+            incidentId,   
             majorIncidentManagers,
             teamsEngaged,
             chainOfEvents
@@ -51,6 +53,7 @@ app.post("/send-email", async (req, res) => {
         if (!impact) missingFields.push("Impact");
         if (!outageStart) missingFields.push("Outage Start");
         if (!majorIncidentManagers) missingFields.push("Major Incident Managers");
+        if (!chainOfEvents || chainOfEvents.trim() === "") missingFields.push("Chain of Events");
 
         // ✅ Outage End Validation:
         // - Required when Status is GREEN
@@ -110,6 +113,8 @@ app.post("/send-email", async (req, res) => {
                                 <p><strong>⚡ Impact:</strong> ${impact}</p>
                                 <p><strong>⏳ Outage Start:</strong> ${outageStart}</p>
                                 ${subjectStatus !== "GREEN" || outageEnd ? `<p><strong>✅ Outage End:</strong> ${formattedOutageEnd}</p>` : ""}
+                                <p><strong>📢 Slack Channel:</strong> ${slackChannel}</p>
+                                ${subjectStatus === 'GREEN' ? `<p><strong>🆔 Incident ID:</strong> ${incidentId}</p>` : ''}
                                 <p><strong>🌍 Region:</strong> India</p>
                                 <p><strong>👤 Reporter:</strong> OCC Team</p>
                                 <p><strong>🔗 Zoom Link:</strong> <a href="https://meet.google.com/landing?hs=197&authuser=0" target="_blank" style="color: #007bff;">Google Meet</a></p>
