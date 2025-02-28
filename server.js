@@ -4,15 +4,64 @@ const nodemailer = require("nodemailer");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
+const session = require("express-session");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ✅ Authentication Configuration
+const VALID_USER = {
+    email: "subhash@gmail.com",
+    password: "ola@123" // Demo only - use hashed passwords in production
+};
 
 // ✅ Middleware
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key-123',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000 // 1 hour session
+    }
+}));
+
+// ✅ Authentication Middleware
+const requireAuth = (req, res, next) => {
+    if (!req.session.authenticated) {
+        return res.redirect('/login.html');
+    }
+    next();
+};
+
+// ✅ Protect main routes before static files
+app.get('/', requireAuth);
+app.get('/index.html', requireAuth);
+
+// Serve static files after auth check
 app.use(express.static(path.join(__dirname, "public")));
+
+// ✅ Login Route
+app.post("/login", (req, res) => {
+    const { email, password } = req.body;
+    
+    if (email === VALID_USER.email && password === VALID_USER.password) {
+        req.session.authenticated = true;
+        return res.json({ 
+            success: true,
+            redirect: '/' // Explicit redirect path
+        });
+    }
+    res.status(401).json({ 
+        success: false, 
+        message: "Invalid credentials" 
+    });
+});
+// ✅ Protect Email Route
+app.use("/send-email", requireAuth);
 
 // ✅ Nodemailer Configuration
 const transporter = nodemailer.createTransport({
@@ -24,7 +73,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ✅ Email Sending Route
-app.post("/send-email", async (req, res) => {
+app.post("/send-email", requireAuth, async (req, res) => {
     try {
         const {
             recipient,
