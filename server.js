@@ -109,7 +109,9 @@ app.post("/send-email", requireAuth, async (req, res) => {
 
         if (!recipient) missingFields.push("Recipient Email");
         if (!subject) missingFields.push("Subject");
-        if (!status) missingFields.push("Status");
+        if (!status || status.trim() === "") {
+            missingFields.push("Status");
+        }
         if (!incidentTitle) missingFields.push("Incident Title");
         if (!description) missingFields.push("Description");
         if (!impact) missingFields.push("Impact");
