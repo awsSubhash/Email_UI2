@@ -73,23 +73,21 @@
         <input type="text" id="outage-end" placeholder="Enter outage end time">
     </div>
 
-    <!-- New Fields -->
     <div class="form-group">
-        <label for="slack-channel">📢 Slack Channel:</label>
-        <input type="text" id="slack-channel" value="ola-outage" readonly>
+        <label for="slack-channel">💬 Slack Channel</label>
+        <input type="text" id="slack-channel" value="ola-outage" readonly />
     </div>
-
+    
+    <!-- Incident ID Field (Hidden by Default) -->
     <div class="form-group" id="incident-id-group" style="display: none;">
         <label for="incident-id">🆔 Incident ID:</label>
         <input type="text" id="incident-id" placeholder="Enter Incident ID">
     </div>
-    
+
     <div class="form-group">
-        <label for="zoom-link">📺 Zoom Link:</label>
+        <label for="zoom-link">📺 Zoom Link: (No need to fill) </label>
         <input type="text" id="zoom-link" placeholder="Enter Zoom link">
     </div>
-
-    <!-- Rest of the form remains unchanged -->
 
     <div class="form-group">
         <label for="major-incident-managers">👥 Major Incident Managers:</label>
