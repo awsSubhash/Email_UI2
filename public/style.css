@@ -114,3 +114,33 @@ button:hover {
     text-align: center;
     margin-top: 15px;
 }
+/* logout style.css */
+.logout-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it stays above other elements */
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background: #bb2d3b;
+}
+#status:invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+#status:valid {
+    border-color: #28a745;
+}
