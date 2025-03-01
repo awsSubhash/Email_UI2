@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ Authentication Configuration
 const VALID_USER = {
-    email: "subhash@gmail.com",
-    password: "ola@123" // Demo only - use hashed passwords in production
+    email: "subhash.singh1@olacabs.com",
+    password: "Subhash@123" // Demo only - use hashed passwords in production
 };
 
 // ✅ Middleware
@@ -60,6 +60,19 @@ app.post("/login", (req, res) => {
         message: "Invalid credentials" 
     });
 });
+
+// Logout Route
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('❌ Logout Error:', err);
+            return res.status(500).json({ success: false });
+        }
+        res.clearCookie('connect.sid'); // Clear session cookie
+        res.json({ success: true });
+    });
+});
+
 // ✅ Protect Email Route
 app.use("/send-email", requireAuth);
 
@@ -166,7 +179,7 @@ app.post("/send-email", requireAuth, async (req, res) => {
                                 ${subjectStatus === 'GREEN' ? `<p><strong>🆔 Incident ID:</strong> ${incidentId}</p>` : ''}
                                 <p><strong>🌍 Region:</strong> India</p>
                                 <p><strong>👤 Reporter:</strong> OCC Team</p>
-                                <p><strong>🔗 Zoom Link:</strong> <a href="https://meet.google.com/landing?hs=197&authuser=0" target="_blank" style="color: #007bff;">Google Meet</a></p>
+                                <p><strong>🔗 Zoom Link:</strong> <a href=" https://olacabs.zoom.us/j/7387313438?pwd=a3JEOGZRQnRyV2lQakNnS2JmdUNnQT09" target="_blank" style="color: #007bff;">zoom link</a></p>
                                 <p><strong>👨‍💼 Major Incident Managers:</strong> ${majorIncidentManagers}</p>
                                 <p><strong>💼 Teams Engaged:</strong> ${formattedTeams}</p>
                                 <p><strong>📜 Chain of Events:</strong> <br>${formattedChainOfEvents}</p>
