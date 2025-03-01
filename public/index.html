@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Notification Form</title>
+    <title>Outage communication</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
 
 <div class="container">
-    <h2>📩 Email Notification Form</h2>
+    <h2>📩 Outage communication</h2>
 
     <!-- Status Section -->
     <div class="status-container">
         <label for="status">🔵 Status:</label>
-        <select id="status" onchange="updateCurrentStatus()">
+        <select id="status" onchange="updateCurrentStatus()" required>
+            <option value="" selected disabled>🔵 Select Status</option>
             <option value="GREEN">🟢 Green (Resolved)</option>
             <option value="AMBER">🟠 Amber (Under Observation)</option>
             <option value="RED">🔴 Red (Investigating)</option>
