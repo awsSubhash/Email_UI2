@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ Authentication Configuration
 const VALID_USER = {
-    email: "subhash.singh1@olacabs.com",
-    password: "Subhash@123" // Demo only - use hashed passwords in production
+    email: "subhash@gmail.com",
+    password: "HelloSubhash123@##" // Demo only - use hashed passwords in production
 };
 
 // ✅ Middleware
