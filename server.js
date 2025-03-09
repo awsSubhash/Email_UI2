@@ -109,15 +109,18 @@ app.post("/send-email", requireAuth, async (req, res) => {
 
         if (!recipient) missingFields.push("Recipient Email");
         if (!subject) missingFields.push("Subject");
-        if (!status || status.trim() === "") {
-            missingFields.push("Status");
-        }
+        if (!status) missingFields.push("Status");
         if (!incidentTitle) missingFields.push("Incident Title");
         if (!description) missingFields.push("Description");
         if (!impact) missingFields.push("Impact");
         if (!outageStart) missingFields.push("Outage Start");
         if (!majorIncidentManagers) missingFields.push("Major Incident Managers");
-        if (!chainOfEvents || chainOfEvents.trim() === "") missingFields.push("Chain of Events");
+        if (!teamsEngaged || (Array.isArray(teamsEngaged) && teamsEngaged.length === 0) ||
+    (typeof teamsEngaged === 'string' && teamsEngaged.trim() === "")) {
+    missingFields.push("Teams Engaged");
+}
+        
+if (!chainOfEvents || chainOfEvents.trim() === "") missingFields.push("Chain of Events");
 
         // ✅ Status Validation
         const normalizedStatus = status.trim().toLowerCase();
@@ -159,32 +162,32 @@ app.post("/send-email", requireAuth, async (req, res) => {
         const mailOptions = {
             from: `"Incident Management System" <${process.env.EMAIL_USERNAME}>`,
             to: recipient,
-            subject: `${subject}`,
+            subject: `${subjectStatus} S1 Outage Communication | ${incidentTitle}`,
             headers: { "X-Incident-Status": subjectStatus },
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
                     <table style="width: 100%; max-width: 600px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0px 2px 5px #ccc;">
                         <tr>
                             <td style="background: ${bgColor}; color: white; padding: 20px; font-size: 22px; text-align: center; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                                🚨 Status - ${subjectStatus}
+                               Status 🚨 - ${subjectStatus}
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 25px; font-size: 18px; line-height: 1.8; color: #333;">
-                                <p><strong>🔴 Current Status:</strong> ${displayStatus}</p>
-                                <p><strong>📌 Incident Title:</strong> ${incidentTitle}</p>
-                                <p><strong>📖 Description:</strong> ${description}</p>
-                                <p><strong>⚡ Impact:</strong> ${impact}</p>
-                                <p><strong>⏳ Outage Start:</strong> ${outageStart}</p>
-                                ${subjectStatus !== "GREEN" || outageEnd ? `<p><strong>✅ Outage End:</strong> ${formattedOutageEnd}</p>` : ""}
-                                <p><strong>📢 Slack Channel:</strong> ${slackChannel}</p>
+                                <p><strong>Current Status:</strong> ${displayStatus}</p>
+                                <p><strong>Incident Title:</strong> ${incidentTitle}</p>
+                                <p><strong>Description:</strong> ${description}</p>
+                                <p><strong>Impact:</strong> ${impact}</p>
+                                <p><strong>Outage Start:</strong> ${outageStart}</p>
+                                ${subjectStatus !== "GREEN" || outageEnd ? `<p><strong>Outage End:</strong> ${formattedOutageEnd}</p>` : ""}
+                                <p><strong>Slack Channel:</strong> ${slackChannel}</p>
                                 ${subjectStatus === 'GREEN' ? `<p><strong>🆔 Incident ID:</strong> ${incidentId}</p>` : ''}
-                                <p><strong>🌍 Region:</strong> India</p>
-                                <p><strong>👤 Reporter:</strong> OCC Team</p>
-                                <p><strong>🔗 Zoom Link:</strong> <a href=" https://olacabs.zoom.us/j/7387313438?pwd=a3JEOGZRQnRyV2lQakNnS2JmdUNnQT09" target="_blank" style="color: #007bff;">zoom link</a></p>
-                                <p><strong>👨‍💼 Major Incident Managers:</strong> ${majorIncidentManagers}</p>
-                                <p><strong>💼 Teams Engaged:</strong> ${formattedTeams}</p>
-                                <p><strong>📜 Chain of Events:</strong> <br>${formattedChainOfEvents}</p>
+                                <p><strong>Region:</strong> India</p>
+                                <p><strong> Reporter:</strong> OCC Team</p>
+                                <p><strong> Zoom Link:</strong> <a href=" https://olacabs.zoom.us/j/7387313438?pwd=a3JEOGZRQnRyV2lQakNnS2JmdUNnQT09" target="_blank" style="color: #007bff;">zoom link</a></p>
+                                <p><strong>‍Major Incident Managers:</strong> ${majorIncidentManagers}</p>
+                                <p><strong>Teams Engaged:</strong> ${formattedTeams}</p>
+                                <p><strong>Chain of Events:</strong> <br>${formattedChainOfEvents}</p>
                                 <hr style="border: 0; border-top: 1px solid #ddd;">
                                 <p style="color: #999; text-align: center; font-size: 14px;">📧 OLA COMMAND CENTER</p>
                             </td>
