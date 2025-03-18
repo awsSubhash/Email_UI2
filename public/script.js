@@ -4,6 +4,7 @@ function updateCurrentStatus() {
     const status = document.getElementById("status").value;
     const currentStatus = document.getElementById("current-status");
     const incidentIdGroup = document.getElementById("incident-id-group");
+    const outageEndGroup = document.getElementById("outage-end-group");
 
     // Handle unselected state
     if (!status) {
@@ -11,6 +12,7 @@ function updateCurrentStatus() {
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "#6c757d"; // Grey color
         incidentIdGroup.style.display = "none";
+        outageEndGroup.style.display = "none";
         return;
     }
 
@@ -19,16 +21,19 @@ function updateCurrentStatus() {
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "red";
         incidentIdGroup.style.display = "none";
+        outageEndGroup.style.display = "none"; 
     } else if (status === "AMBER") {
         currentStatus.textContent = "⚠️ Under Observation";
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "orange";
         incidentIdGroup.style.display = "none";
+        outageEndGroup.style.display = "block";
     } else if (status === "GREEN") {
         currentStatus.textContent = "✅ Resolved";
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "green";
         incidentIdGroup.style.display = "block";
+        outageEndGroup.style.display = "block";
     }
 }
 
@@ -65,12 +70,18 @@ async function sendEmail() {
     if (!description) missingFields.push("Description");
     if (!impact) missingFields.push("Impact");
     if (!outageStart) missingFields.push("Outage Start");
-    if (!outageEnd) missingFields.push("Outage End");
+    if (status === "GREEN" && (!outageEnd || outageEnd.trim() === "")) {
+        missingFields.push("Outage End");
+      }
     if (!chainOfEvents) missingFields.push("Chain of Events");
     
     // Status-specific validation
     if (status === "GREEN") {
         if (!incidentId) missingFields.push("Incident ID (Required for Green Status)");
+    }
+
+    if ((status === "GREEN" || status === "AMBER") && (!outageEnd || outageEnd.trim() === "")) {
+        missingFields.push("Outage End");
     }
 
     if (missingFields.length > 0) {

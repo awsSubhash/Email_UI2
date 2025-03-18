@@ -144,3 +144,8 @@ button:hover {
 #status:valid {
     border-color: #28a745;
 }
+
+.required-asterisk {
+    color: red;
+    margin-left: 3px;
+}

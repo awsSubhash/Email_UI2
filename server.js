@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ Authentication Configuration
 const VALID_USER = {
     email: "subhash@gmail.com",
-    password: "HelloSubhash123@##" // Demo only - use hashed passwords in production
+    password: "Subhash@123" // Demo only - use hashed passwords in production
 };
 
 // ✅ Middleware
@@ -124,8 +124,8 @@ if (!chainOfEvents || chainOfEvents.trim() === "") missingFields.push("Chain of 
 
         // ✅ Status Validation
         const normalizedStatus = status.trim().toLowerCase();
-        if (normalizedStatus === "green" && (!outageEnd || outageEnd.trim() === "")) {
-            missingFields.push("Outage End (Required for Green)");
+        if (["green", "amber"].includes(normalizedStatus) && (!outageEnd || outageEnd.trim() === "")) {
+            missingFields.push("Outage End (Required for Amber/Green)");
         }
 
         if (missingFields.length > 0) {
