@@ -26,7 +26,7 @@ COPY --from=builder /app .
 RUN npm prune --production
 
 # Expose the port your app uses (change if needed)
-EXPOSE 3000
+EXPOSE 5000
 
 # Run the application
 CMD ["node", "server.js"]
