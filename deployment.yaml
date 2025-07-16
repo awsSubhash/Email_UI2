@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: outage-communication-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: outage-communication-app
+  template:
+    metadata:
+      labels:
+        app: outage-communication-app
+    spec:
+      containers:
+      - name: outage-communication-app
+        image: subhash45/outage-communication-app:latest
+        ports:
+        - containerPort: 5000
+

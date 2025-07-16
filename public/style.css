@@ -71,6 +71,12 @@ input, textarea, select {
     border-radius: 5px;
 }
 
+/* Readonly Input Styling */
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
 /* Button Styling */
 button {
     background-color: #007bff;
@@ -114,6 +120,7 @@ button:hover {
     text-align: center;
     margin-top: 15px;
 }
+
 /* logout style.css */
 .logout-container {
     position: absolute;
@@ -136,6 +143,7 @@ button:hover {
 .logout-btn:hover {
     background: #bb2d3b;
 }
+
 #status:invalid {
     border-color: #dc3545;
     background-color: #fff5f5;

@@ -1,10 +1,14 @@
 // script.js (Updated Version)
+// ✅ Store ticket ID for Green notification
+let storedTicketId = null;
+
 // ✅ Function to update current status dynamically
 function updateCurrentStatus() {
     const status = document.getElementById("status").value;
     const currentStatus = document.getElementById("current-status");
     const incidentIdGroup = document.getElementById("incident-id-group");
     const outageEndGroup = document.getElementById("outage-end-group");
+    const incidentIdInput = document.getElementById("incident-id");
 
     // Handle unselected state
     if (!status) {
@@ -13,6 +17,8 @@ function updateCurrentStatus() {
         currentStatus.style.backgroundColor = "#6c757d"; // Grey color
         incidentIdGroup.style.display = "none";
         outageEndGroup.style.display = "none";
+        incidentIdInput.readOnly = false;
+        incidentIdInput.value = ""; // Clear Incident ID only on status change to unselected
         return;
     }
 
@@ -22,24 +28,31 @@ function updateCurrentStatus() {
         currentStatus.style.backgroundColor = "red";
         incidentIdGroup.style.display = "none";
         outageEndGroup.style.display = "none"; 
+        incidentIdInput.readOnly = false;
+        incidentIdInput.value = ""; // Clear Incident ID for Red
     } else if (status === "AMBER") {
         currentStatus.textContent = "⚠️ Under Observation";
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "orange";
-        incidentIdGroup.style.display = "none";
+        incidentIdGroup.style.display = "none"; // Hide for Amber
         outageEndGroup.style.display = "block";
+        incidentIdInput.readOnly = true;
+        incidentIdInput.value = ""; // Clear Incident ID for Amber
     } else if (status === "GREEN") {
         currentStatus.textContent = "✅ Resolved";
         currentStatus.style.color = "white";
         currentStatus.style.backgroundColor = "green";
         incidentIdGroup.style.display = "block";
         outageEndGroup.style.display = "block";
+        incidentIdInput.readOnly = true; // Readonly for Green
+        incidentIdInput.value = storedTicketId || ""; // Auto-populate with stored ticket ID
     }
 }
 
 // ✅ Initialize status display on page load
 document.addEventListener('DOMContentLoaded', () => {
     updateCurrentStatus();
+    document.getElementById("status").addEventListener('change', updateCurrentStatus);
 });
 
 // ✅ Function to send an email
@@ -70,18 +83,18 @@ async function sendEmail() {
     if (!description) missingFields.push("Description");
     if (!impact) missingFields.push("Impact");
     if (!outageStart) missingFields.push("Outage Start");
-    if (status === "GREEN" && (!outageEnd || outageEnd.trim() === "")) {
-        missingFields.push("Outage End");
-      }
+    if (!majorIncidentManagers) missingFields.push("Major Incident Managers");
+    if (!teamsEngaged || teamsEngaged.length === 0) missingFields.push("Teams Engaged");
     if (!chainOfEvents) missingFields.push("Chain of Events");
     
-    // Status-specific validation
-    if (status === "GREEN") {
-        if (!incidentId) missingFields.push("Incident ID (Required for Green Status)");
+    if (status === "GREEN" || status === "AMBER") {
+        if (!outageEnd || outageEnd.trim() === "") {
+            missingFields.push("Outage End");
+        }
     }
 
-    if ((status === "GREEN" || status === "AMBER") && (!outageEnd || outageEnd.trim() === "")) {
-        missingFields.push("Outage End");
+    if (status === "GREEN" && !incidentId) {
+        missingFields.push("Incident ID");
     }
 
     if (missingFields.length > 0) {
@@ -118,8 +131,14 @@ async function sendEmail() {
         const data = await response.json();
         if (data.success) {
             alert("✅ Email sent successfully!");
-            // Optional: Reset form
+            // Store ticket ID for Amber notifications
+            if (status === "AMBER" && data.incidentId) {
+                storedTicketId = data.incidentId;
+                console.log('Stored Ticket ID:', storedTicketId); // Debug
+            }
+            // Reset only the Status field
             document.getElementById("status").value = "";
+            // Update UI to reflect reset Status
             updateCurrentStatus();
         } else {
             alert(`❌ Failed to send email: ${data.message || "Check email settings"}`);
