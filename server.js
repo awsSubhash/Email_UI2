@@ -335,9 +335,15 @@ app.post("/send-email", requireAuth, async (req, res) => {
                                 <p><strong>Slack Channel:</strong> ${slackChannel}</p>
                                 ${subjectStatus === "GREEN" && generatedIncidentId ? `<p><strong>🆔 Incident ID:</strong> ${generatedIncidentId}</p>` : ""}
                                 <p><strong>Region:</strong> India</p>
+<<<<<<< HEAD
                                 <p><strong>Reporter:</strong> OCC Team</p>
                                 <p><strong>Zoom Link:</strong> <a href="${formattedZoomLink}" target="_blank" style="color: #007bff;">Zoom Link</a></p>
                                 <p><strong>Major Incident Managers:</strong> ${majorIncidentManagers}</p>
+=======
+                                <p><strong> Reporter:</strong> OCC Team</p>
+                                <p><strong> Zoom Link:</strong> <a href=" " target="_blank" style="color: #007bff;">zoom link</a></p>
+                                <p><strong>‍Major Incident Managers:</strong> ${majorIncidentManagers}</p>
+>>>>>>> b7fe019655a4557451c2737cd1a0789bb2dcb7ef
                                 <p><strong>Teams Engaged:</strong> ${formattedTeams}</p>
                                 <p><strong>Chain of Events:</strong> <br>${formattedChainOfEvents}</p>
                                 <hr style="border: 0; border-top: 1px solid #ddd;">
